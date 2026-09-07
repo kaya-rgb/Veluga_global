@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>벨루가 B안 · 와이어프레임 검토</title>
+  <link rel="stylesheet" href="public/assets/fonts/pretendard/pretendard.css"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="figma-buttons.css">
+  <style>
+    html{scroll-behavior:auto}body{background:var(--gray200)}.review-bar{position:sticky;top:0;z-index:50;min-height:64px;border-bottom:1px solid var(--gray300);background:var(--white);display:flex;gap:24px;align-items:center;padding:12px 24px;flex-wrap:wrap}.review-title{display:flex;align-items:center;gap:12px;flex:none}.review-title strong{font-size:14px;font-weight:600}.review-title>span{font-size:12px;color:var(--gray600);padding-left:12px;border-left:1px solid var(--gray300)}.review-controls{display:flex;align-items:center;gap:12px;margin-left:auto}.review-controls button,.review-controls select,.review-controls a{height:36px;padding:0 12px;font:600 13px Pretendard;border:1px solid var(--gray300);border-radius:8px;background:var(--white);color:var(--gray800);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.review-controls button:hover,.review-controls a:hover{background:var(--gray100)}.review-controls button[aria-pressed="true"]{background:var(--gray900);color:var(--white);border-color:var(--gray900)}.review-controls select{cursor:pointer;padding-right:8px}.zoom-value{min-width:40px;font-size:12px;color:var(--gray600);text-align:right}.review-caption{display:flex;gap:16px;justify-content:space-between;max-width:1920px;margin:20px auto 12px;padding:0 24px;font-size:12px;color:var(--gray600)}.review-caption span:last-child{white-space:nowrap}.stage{margin:0 auto 32px;position:relative;outline:1px solid var(--gray300);background:var(--white);overflow:clip}.stage>.artboard{transform-origin:top left;background:var(--white);position:absolute;top:0;left:0}.loading{padding:80px;text-align:center;color:var(--gray600)}@media(max-width:700px){.review-bar{gap:12px;padding:12px 16px}.review-title>span{display:none}.review-controls{margin-left:0;gap:8px;flex-wrap:wrap}.review-caption{padding:0 16px}.review-caption span:last-child{display:none}}
+  </style>
+</head>
+<body>
+  <header class="review-bar"><div class="review-title"><strong>벨루가 기업 랜딩 · B안</strong><span>데스크톱 와이어프레임</span></div><div class="review-controls"><span class="zoom-value" id="zoom-value">—</span><select id="zoom-mode" aria-label="와이어프레임 확대 배율"><option value="width">너비 맞춤</option><option value="all">전체 보기</option><option value="1">100%</option><option value="0.75">75%</option><option value="0.5">50%</option></select><button type="button" id="grid-toggle" aria-pressed="false">12컬럼 그리드</button><button type="button" id="top-button">맨 위로 ↑</button><a href="index.html" target="_blank" rel="noopener noreferrer">1920px 원본 ↗</a></div></header>
+  <div class="review-caption"><span id="frame-size">1920px · 화면 준비 중</span><span>콘텐츠 1440px · 여백 240px · 거터 20px · Pretendard</span></div>
+  <div class="stage" id="stage" aria-busy="true"><div class="loading" role="status">와이어프레임을 불러오고 있습니다.</div></div>
+  <script>
+    (()=>{
+      const stage=document.getElementById('stage'),mode=document.getElementById('zoom-mode');
+      let board,boardHeight=6400,scale=1,grid=false;
+      function size(){
+        const availableWidth=Math.max(200,document.documentElement.clientWidth-48);
+        scale=mode.value==='width'?Math.min(1,availableWidth/1920):mode.value==='all'?Math.min(1,availableWidth/1920,Math.max(200,innerHeight-stage.offsetTop-32)/boardHeight):Number(mode.value);
+        stage.style.width=(1920*scale)+'px';stage.style.height=(boardHeight*scale)+'px';
+        if(board)board.style.transform=`scale(${scale})`;
+        document.getElementById('zoom-value').textContent=Math.round(scale*100)+'%';
+        document.getElementById('frame-size').textContent=`1920 × ${boardHeight}px · 첫 화면 1920 × 1080px`;
+      }
+      async function loadWireframe(){
+        try{
+          const response=await fetch('index.html',{cache:'no-cache'});
+          if(!response.ok)throw new Error('와이어프레임을 불러올 수 없습니다.');
+          const source=new DOMParser().parseFromString(await response.text(),'text/html');
+          // Keep the source content in this document so review tools can select each element.
+          const sourceBoard=source.querySelector('.artboard');
+          if(!sourceBoard)throw new Error('와이어프레임 본문을 찾을 수 없습니다.');
+          board=document.importNode(sourceBoard,true);
+          stage.replaceChildren(board);
+          for(const id of ['talent-dialog','notice'])document.body.append(document.importNode(source.getElementById(id),true));
+          board.addEventListener('click',event=>{
+            const link=event.target.closest('a[href^="#"]');
+            if(!link)return;
+            const target=document.getElementById(link.hash.slice(1));
+            if(!target)return;
+            event.preventDefault();
+            window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-document.querySelector('.review-bar').offsetHeight-16,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+          });
+          const measure=()=>{boardHeight=board.offsetHeight;size();};
+          new ResizeObserver(measure).observe(board);
+          measure();
+          const script=document.createElement('script');
+          script.src='wireframe.js';
+          await new Promise((resolve,reject)=>{script.onload=resolve;script.onerror=reject;document.body.append(script);});
+          await document.fonts.ready;
+          measure();
+          stage.setAttribute('aria-busy','false');
+        }catch(error){
+          stage.setAttribute('aria-busy','false');
+          const message=document.createElement('p');
+          message.className='loading';message.setAttribute('role','alert');
+          message.textContent='화면을 불러오지 못했습니다. 새로고침하거나 상단의 1920px 원본을 열어 주세요.';
+          stage.replaceChildren(message);
+          console.error(error);
+        }
+      }
+      window.addEventListener('resize',size);
+      mode.addEventListener('change',()=>{size();window.scrollTo(0,0);});
+      document.getElementById('grid-toggle').addEventListener('click',event=>{grid=!grid;event.currentTarget.setAttribute('aria-pressed',String(grid));document.body.classList.toggle('show-grid',grid);});
+      document.getElementById('top-button').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+      size();
+      loadWireframe();
+    })();
+  </script>
+</body>
+</html>
