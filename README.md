@@ -2,6 +2,8 @@
 
 벨루가 기업 랜딩페이지의 데스크톱 와이어프레임입니다. 히어로 모션, 두 제품 소개, 기술 역량 탐색, 활용 사례, 인재풀 폼의 화면 구조를 검토합니다.
 
+[배포된 검토 화면](https://veluga-global.vercel.app/preview.html) · [1920px 원본](https://veluga-global.vercel.app/index.html)
+
 ## 로컬에서 보기
 
 ```sh
@@ -17,6 +19,8 @@ node scripts/build.mjs
 ```
 
 화면 파일과 로컬 Pretendard 자산만 `dist/`로 복사합니다. 별도 패키지 설치나 환경 변수는 필요하지 않습니다. Vercel은 저장소 루트의 `vercel.json` 설정으로 빌드하며, 기본 주소 `/`는 검토 화면을 표시합니다. `/preview.html`과 `/index.html`에서도 각각 검토 화면과 원본에 접근할 수 있습니다.
+
+GitHub의 `main` 브랜치를 기존 Vercel `veluga-global` 프로젝트에 연결했습니다. `main`에 푸시하면 Production 배포가 시작됩니다. 배포 후에는 Vercel의 Ready 상태와 배포 커밋, 실제 페이지의 표시 및 동작을 함께 확인합니다.
 
 ## 구성과 범위
 

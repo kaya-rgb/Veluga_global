@@ -4,7 +4,7 @@
   "installCommand": "",
   "buildCommand": "node scripts/build.mjs",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/", "destination": "/preview.html" }
+  "redirects": [
+    { "source": "/", "destination": "/preview.html", "permanent": false }
   ]
 }
