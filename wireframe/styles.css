@@ -94,9 +94,8 @@ html.artboard-document{scrollbar-width:none;scroll-behavior:auto}html.artboard-d
 .visual-history i{display:block;height:12px;border-bottom:1px solid var(--gray300);margin-left:16px;position:relative}
 .visual-history i:before{content:"";position:absolute;left:-16px;top:2px;width:6px;height:6px;border-radius:50%;background:var(--gray500)}
 .operations-visual{gap:64px}
-.governance-visual{flex-direction:column;gap:16px}
-.governance-roles{display:flex;gap:16px;align-items:center}
-.security-visual{gap:20px}
+.policy-visual{flex-direction:column;gap:16px}
+.policy-flow{display:flex;gap:20px;align-items:center}
 .capability-applications{display:flex;flex-wrap:wrap;gap:24px 32px;padding-top:24px;border-top:1px solid var(--gray200)}
 .capability-applications article{flex:1 1 260px;min-width:0}
 .capability-applications article>div{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
